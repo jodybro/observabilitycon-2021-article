@@ -1,7 +1,7 @@
 ---
 name: observabilitycon2021-main
 version: latest
-image: ghcr.io/jodybro/observabilitycon-2021
+image: ghcr.io/jodybro/observabilitycon-2021-article
 labels: {}
 annotations: {}
 env: 
