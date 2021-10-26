@@ -31,7 +31,7 @@ One way to achieve this is with ephemeral environments based on PR's. The idea b
 That sounds like a daunting task but through the use of Kubernetes, Helm, a CI Platform (GitHub Actions in this tutorial) and ArgoCD...we can make this a reality.
 
 # Example app
-[GitHub Repo](https://github.com/jodybro/observabilitycon-2021)
+[GitHub Repo](https://github.com/jodybro/observabilitycon-2021-article)
 
 The example app that we're going to be deploying today is just a prometheus exporter that exports a custom metric with an overrideable label set:
 
@@ -84,7 +84,7 @@ The second workflow is the one where we deploy to ArgoCD:
       - name: Deploy PR Build
         run: |
           argocd app create observabilitycon-2021-pr-${{ github.event.pull_request.number }} \
-            --repo https://github.com/jodybro/observabilitycon-2021.git \
+            --repo https://github.com/jodybro/observabilitycon-2021-article.git \
             --revision ${{ github.head_ref }} \
             --path . \
             --upsert \
@@ -105,4 +105,52 @@ It then creates a Kubernetes object of `kind: Application` which is a CRD that A
 
 
 # Putting it all together
-Now let's see how it all works in action
+Now let's see how it all works in action.
+First we'll head to our repo and create a pr against the master branch with some changes, doesn't matter what the changes are. 
+
+Here we see that our pr has triggered a pipeline which can be viewed [here](https://github.com/jodybro/observabilitycon-2021-article/actions/runs/1383652305).
+We can see that this pipeline executed successfully so if we were to go to our ArgoCD instance we should see an application with this PR ID.
+
+So now we have 2 deployments of this example app, one should show labels for the `main` branch and one should show labels for the pr branch.
+
+Let's verify by port-forwarding to each and see what we get back.
+
+## Main branch
+
+First, let's check out the main branch application:
+```bash
+kubectl port-forward service/observabilitycon2021-main 8000:8000 
+Forwarding from 127.0.0.1:8000 -> 8000
+Forwarding from [::1]:8000 -> 8000
+```
+![](./images/main-service.png)
+
+As you can see the branch is set to `main` and we're showing the right version.
+
+And if we check out the state of our Application in ArgoCD:
+![](./images/ArgoCD-main.png)
+![](./images/ArgoCD-main-state.png)
+
+Everything is healthy!
+
+## PR
+
+Now let's check the pr deployment:
+
+```bash
+kubectl port-forward service/observabilitycon2021-pr-1 8000:8000 
+Forwarding from 127.0.0.1:8000 -> 8000
+Forwarding from [::1]:8000 -> 8000
+```
+
+This ones labels are showing the branch and the vesion from the PR!
+
+This pod returns:
+![](./images/pr-1-service.png)
+
+And in ArgoCD:
+![](./images/ArgoCD-PR-1.png)
+![](./images/ArgoCD-PR-1-state.png)
+
+# Final thoughts
+It really is that easy to get PR environments running in your company!
