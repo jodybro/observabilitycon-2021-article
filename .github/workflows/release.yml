@@ -57,7 +57,7 @@ jobs:
       - name: Deploy main environment
         run: |
           argocd app create observabilitycon-2021-main \
-            --repo https://github.com/jodybro/observabilitycon-2021.git \
+            --repo https://github.com/jodybro/observabilitycon-2021-article.git \
             --revision main \
             --path . \
             --upsert \

@@ -34,7 +34,7 @@ jobs:
       - name: Deploy PR Build
         run: |
           argocd app create observabilitycon-2021-pr-${{ github.event.pull_request.number }} \
-            --repo https://github.com/jodybro/observabilitycon-2021.git \
+            --repo https://github.com/jodybro/observabilitycon-2021-article.git \
             --revision ${{ github.head_ref }} \
             --path . \
             --upsert \
